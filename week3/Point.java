@@ -1,3 +1,5 @@
+import java.util.Comparator;
+
 public class Point implements Comparable<Point> {
   private final int x;
   private final int y;
@@ -27,8 +29,30 @@ public class Point implements Comparable<Point> {
     return deltaY/deltaX;
   }
 
-  // public            double slopeTo(Point that)       // the slope between this point and that point
-  // public Comparator<Point> slopeOrder()              // compare two points by slopes they make with this point
+  public void drawTo(Point that) {
+    System.out.println("drawing");
+  }
+
+  public Comparator<Point> slopeOrder() {
+    return new PointComparator(this);
+  }
+
+  private class PointComparator implements Comparator<Point> {
+    Point invokingPoint;
+
+    PointComparator(Point invokingPoint) {
+      this.invokingPoint = invokingPoint;
+    }
+
+    public int compare(Point one, Point two) {
+      double slope1 = this.invokingPoint.slopeTo(one);
+      double slope2 = this.invokingPoint.slopeTo(two);
+
+      if (slope1 > slope2) { return 1; }
+      else if (slope1 < slope2) { return -1; }
+      else { return 0; }
+    }
+  }
 
   public static void testCompareTo(Point input1, Point input2, int expectedResult) {
     if (input1.compareTo(input2) != expectedResult) {
