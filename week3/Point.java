@@ -6,6 +6,10 @@ public class Point implements Comparable<Point> {
   private final int y;
   
   public Point(int x, int y) {
+    if (x < 0 || y < 0) {
+      throw new java.lang.NullPointerException();
+    }
+
     this.x = x;
     this.y = y;
   }
@@ -13,10 +17,19 @@ public class Point implements Comparable<Point> {
   public int compareTo(Point that) {
     if (this.y < that.y) { return -1; }
 
-    if (this.y == that.y && this.x == that.x) { return 0; }
-
+    if (this.y == that.y) {
+      if (this.x == that.x) { return 0; }
+      if (this.x < that.x) { return -1; }
+    }
+    
     return 1;
   }
+
+  /**
+  * antisymmetric,
+  where p and q have coordinates in [0, 500)
+  Failed on trial 58 of 100000 p = (324, 99) q = (66, 99) p.compareTo(q) = 1 q.compareTo(p) = 1
+   */
 
   public double slopeTo(Point that) {
     if(this.compareTo(that) == 0) { return Double.NEGATIVE_INFINITY; }
@@ -25,7 +38,7 @@ public class Point implements Comparable<Point> {
 
     double deltaX = that.x - this.x;
     if (deltaX == 0) { return Double.POSITIVE_INFINITY; }
-
+    if (deltaY == 0) { return 0.0; }
 
     return deltaY/deltaX;
   }

@@ -9,7 +9,9 @@ public class FastCollinearPoints {
 
   private final LineSegment[] segments;
 
-  public FastCollinearPoints(Point[] points) {
+  public FastCollinearPoints(Point[] inputPoints) {
+    verifyInput(inputPoints);
+    Point[] points = copy(inputPoints);
     Arrays.sort(points);
 
     List<LineSegment> segments = new ArrayList<LineSegment>();
@@ -49,7 +51,33 @@ public class FastCollinearPoints {
       }
     }
 
-    this.segments = (LineSegment[]) segments.toArray();
+    LineSegment[] toSave = new LineSegment[segments.size()];
+
+    for (int i = 0; i < toSave.length; i++) {
+      toSave[i] = segments.get(i);
+    }
+
+    this.segments = toSave;
+  }
+
+  private static void verifyInput(Point[] input) {
+    if (input == null) {
+      throw new java.lang.IllegalArgumentException();
+    }
+
+    if (input[0] == null) {
+      throw new java.lang.IllegalArgumentException();
+    }
+    for (int i = 0; i < input.length; i++) {
+      for (int j = i + 1; j < input.length; j++) {
+        if (input[j] == null) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        if (input[i].compareTo(input[j]) == 0) {
+          throw new java.lang.IllegalArgumentException();
+        }
+      }
+    }
   }
   
   public int numberOfSegments() {
@@ -84,6 +112,14 @@ public class FastCollinearPoints {
     }
 
     return newPoints;
+  }
+
+  private static Point[] copy(Point[] input) {
+    Point[] copied = new Point[input.length];
+    for (int i = 0; i < input.length; i++) {
+      copied[i] = input[i];
+    }
+    return copied;
   }
 
   public static void main(String[] args) {
