@@ -1,4 +1,5 @@
 import java.util.Comparator;
+import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
   private final int x;
@@ -54,7 +55,7 @@ public class Point implements Comparable<Point> {
     }
   }
 
-  public static void testCompareTo(Point input1, Point input2, int expectedResult) {
+  /* public static void testCompareTo(Point input1, Point input2, int expectedResult) {
     if (input1.compareTo(input2) != expectedResult) {
       System.out.println("Test failed: " + input1.toString() + ", " + input2.toString());
     }
@@ -64,19 +65,40 @@ public class Point implements Comparable<Point> {
     if (input1.slopeTo(input2) != expectedResult) {
       System.out.println("Test failed: " + input1.toString() + ", " + input2.toString());
     }
+  } */
+
+  /**
+  * Draws this point to standard draw.
+  */
+  public void draw() {
+    /* DO NOT MODIFY */
+    StdDraw.point(x, y);
+  }
+
+  /**
+  * Returns a string representation of this point.
+  * This method is provide for debugging;
+  * your program should not rely on the format of the string representation.
+  *
+  * @return a string representation of this point
+  */
+  public String toString() {
+    /* DO NOT MODIFY */
+    return "(" + x + ", " + y + ")";
   }
 
   public static void main(String[] args) {
-    // CompareTo test suite
-    testCompareTo(new Point(3, 2), new Point(2, 1), 1);
-    testCompareTo(new Point(3, 2), new Point(2, 2), 1);
-    testCompareTo(new Point(3, 2), new Point(3, 2), 0);
-    testCompareTo(new Point(3, 1), new Point(2, 2), -1);
+    // // CompareTo test suite
+    // testCompareTo(new Point(3, 2), new Point(2, 1), 1);
+    // testCompareTo(new Point(3, 2), new Point(2, 2), 1);
+    // testCompareTo(new Point(3, 2), new Point(3, 2), 0);
+    // testCompareTo(new Point(3, 1), new Point(2, 2), -1);
 
-    // slopeTo test suite
-    testSlopeTo(new Point(3, 3), new Point(2, 2), 1.0);
-    testSlopeTo(new Point(3, 3), new Point(3, 3), Double.NEGATIVE_INFINITY);
-    testSlopeTo(new Point(3, 3), new Point(6, 3), 0.0);
-    testSlopeTo(new Point(3, 3), new Point(3, 6), Double.POSITIVE_INFINITY);
+    // // slopeTo test suite
+    // testSlopeTo(new Point(3, 3), new Point(2, 2), 1.0);
+    // testSlopeTo(new Point(3, 3), new Point(3, 3), Double.NEGATIVE_INFINITY);
+    // testSlopeTo(new Point(3, 3), new Point(6, 3), 0.0);
+    // testSlopeTo(new Point(3, 3), new Point(3, 6), Double.POSITIVE_INFINITY);
   }
 }
+

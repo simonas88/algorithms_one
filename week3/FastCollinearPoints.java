@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FastCollinearPoints {
   //  public FastCollinearPoints(Point[] points)     // finds all line segments containing 4 or more points
