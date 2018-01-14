@@ -115,6 +115,7 @@ public class Point implements Comparable<Point> {
             double slope1 = this.invokingPoint.slopeTo(one);
             double slope2 = this.invokingPoint.slopeTo(two);
 
+            if (Double.compare(slope1, slope2) == 0) { return 0; }
             if ((slope1 - slope2) > epsilon ) { return 1; }
             else if ((slope1 - slope2) < -1 * epsilon) { return -1; }
             else { return 0; }

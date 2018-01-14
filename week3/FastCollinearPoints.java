@@ -1,6 +1,8 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints {
   //  public FastCollinearPoints(Point[] points)     // finds all line segments containing 4 or more points
@@ -8,56 +10,55 @@ public class FastCollinearPoints {
   //  public LineSegment[] segments()                // the line segments
 
   private final LineSegment[] segments;
+  private static final double epsilon = 1 / 32768;
 
   public FastCollinearPoints(Point[] inputPoints) {
     verifyInput(inputPoints);
     Point[] points = copy(inputPoints);
-    Arrays.sort(points);
 
-    List<LineSegment> segments = new ArrayList<LineSegment>();
+    List<Point[]> segments = new ArrayList<Point[]>();
 
     for (int i = 0; i < points.length; i++) {
-      Point[] pointCopy = copyWithout(points, i);
       Point pivotPoint = points[i];
+      Point[] pointCopy = copyWithout(points, i);
       Arrays.sort(pointCopy, pivotPoint.slopeOrder());
 
       ArrayList<Point> collinearPoints = new ArrayList<Point>();
+
       for (int j = 0; j < pointCopy.length; j++) {
         Point currentPoint = pointCopy[j];
         Point lastCollinearPoint = collinearPoints.isEmpty()
           ? null
           : collinearPoints.get(collinearPoints.size() - 1);
         
-        Point firstCollinearPoint = lastCollinearPoint != null && collinearPoints.size() > 1
-          ? collinearPoints.get(0)
-          : lastCollinearPoint;
-
         if (lastCollinearPoint == null) {
           collinearPoints.add(currentPoint);
           continue;
         }
 
-        if (pivotPoint.slopeTo(currentPoint) == pivotPoint.slopeTo(lastCollinearPoint)) {
-          collinearPoints.add(currentPoint);
+        if (slopeEquals(pivotPoint, currentPoint, lastCollinearPoint)) {
+          addPoint(collinearPoints, currentPoint);
           continue;
-        }
+        } else {
+          if (collinearPoints.size() > 2) {
+            addPoint(collinearPoints, pivotPoint);
+            segments.add(pointListToArray(collinearPoints));
+          }
 
-        if (collinearPoints.size() > 3) {
-          Point[] lineEnds = getLineEnds(collinearPoints);
-
-          segments.add(new LineSegment(lineEnds[0], lineEnds[1]));
           collinearPoints.clear();
+          collinearPoints.add(currentPoint);
         }
       }
+
+      if (collinearPoints.size() > 2) {
+        addPoint(collinearPoints, pivotPoint);
+        segments.add(pointListToArray(collinearPoints));
+      }
+
+      collinearPoints.clear();
     }
 
-    LineSegment[] toSave = new LineSegment[segments.size()];
-
-    for (int i = 0; i < toSave.length; i++) {
-      toSave[i] = segments.get(i);
-    }
-
-    this.segments = toSave;
+    this.segments = toLineSegmentArray(segments);
   }
 
   private static void verifyInput(Point[] input) {
@@ -79,29 +80,98 @@ public class FastCollinearPoints {
       }
     }
   }
+
+  private static void addPoint (ArrayList<Point> list, Point point) {
+    int index = 0;
+
+    for (int i = 0; i < list.size(); i++) {
+      if (point.compareTo(list.get(i)) > 0) {
+        index += 1;
+      }
+    }
+
+    list.add(index, point);
+  }
+
+  private static Point[] pointListToArray(ArrayList<Point> input) {
+    Point[] output = new Point[input.size()];
+    for(int i = 0; i < output.length; i++) {
+      output[i] = input.get(i);
+    }
+    return output;
+  }
+
+  private static LineSegment[] toLineSegmentArray(List<Point[]> segments) {
+    for (int i = 0; i < segments.size(); i++) {
+      Point[] outerSegment = segments.get(i);
+      for (int j = i + 1; j < segments.size();) {
+        Point[] innerSegment = segments.get(j);
+        if (isSegmentsCollinear(outerSegment, innerSegment)) {
+          if (outerSegment.length >= innerSegment.length) {
+            segments.remove(j);
+            continue;
+          }
+        }
+        j++;
+      }
+    }
+
+    LineSegment[] segmentArray = new LineSegment[segments.size()];
+    for (int i = 0; i < segmentArray.length; i++) {
+      Point[] segment = segments.get(i);
+      segmentArray[i] = new LineSegment(
+        segment[0],
+        segment[segment.length - 1]
+      );
+    }
+
+    return segmentArray;
+  }
+
+  private static boolean isSegmentsCollinear(Point[] seg1, Point[] seg2) {
+    if (Math.abs(
+      seg1[0].slopeTo(seg1[seg1.length - 1]) - seg2[0].slopeTo(seg2[seg2.length - 1])
+    ) > epsilon) {
+      return false;
+    }
+
+    short samePoints = 0;
+
+    for (Point point1 : seg1) {
+      for (Point point2: seg2) {
+        if (point1.compareTo(point2) == 0) {
+          samePoints++;
+        }
+        if (samePoints >= 2) { return true; }
+      }
+      if (samePoints >= 2) { return true; }
+    }
+
+    return samePoints >= 2;
+  }
+
+  private static boolean slopeEquals(Point pivot, Point current, Point last) {
+    double slopeCurrent = pivot.slopeTo(current);
+    double slopeLast = pivot.slopeTo(last);
+
+    if (Double.compare(slopeLast, slopeCurrent) == 0) {
+      return true;
+    }
+
+    return Math.abs(slopeCurrent - slopeLast) <= epsilon;
+  }
   
   public int numberOfSegments() {
     return this.segments.length;
   }
 
   public LineSegment[] segments() {
-    return this.segments;
-  }
-
-  private static Point[] getLineEnds(List<Point> input) {
-    Point[] result = { input.get(0), input.get(0) };
-
-    for (Point point : input) {
-      if (point.compareTo(result[0]) == -1) {
-        result[0] = point;
-      } 
-
-      if (point.compareTo(result[1]) == 1) {
-        result[1] = point;
-      }
+    LineSegment[] returns = new LineSegment[this.segments.length];
+    for(int i = 0; i < returns.length; i++) {
+      returns[i] = this.segments[i];
     }
 
-    return result;
+    return returns;
   }
 
   private static Point[] copyWithout(Point[] input, int exclusionIndex) {
