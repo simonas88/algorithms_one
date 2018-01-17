@@ -192,6 +192,63 @@ public class FastCollinearPoints {
     return copied;
   }
 
+  private class LineFunction {
+    private Point point0;
+    private Point point1;
+    private final double epsilon = 1/ 32768;
+
+    public LineFunction(Point point0, Point point1) {
+
+      if (point0.compareTo(point1) < 0) {
+        this.point0 = point0;
+        this.point1 = point1;
+      } else if(point0.compareTo(point1) > 0) {
+        this.point0 = point1;
+        this.point1 = point0;
+      } else {
+        throw new java.lang.IllegalArgumentException();
+      }
+    }
+
+    private boolean isPointCollinear(Point input) {
+      return Math.abs(Math.abs(input.slopeTo(this.point0)) - Math.abs(input.slopeTo(this.point1))) <= epsilon;
+    }
+
+    private int isPointOutside(Point input) {
+      if (input.compareTo(this.point1) > 0) {
+        return 1;
+      }
+
+      if (input.compareTo(this.point0) < 0) {
+        return -1;
+      }
+
+      return 0;
+    }
+
+    private void setPoint0 (Point input) {
+      this.point0 = input;
+    }
+
+    private void setPoint1 (Point input) {
+      this.point1 = input;
+    }
+
+    public void update(Point input) {
+      if (this.isPointCollinear(input)) {
+        if (this.isPointOutside(input) > 0) {
+          this.setPoint1(input);
+        } else if (this.isPointOutside(input) < 0) {
+          this.setPoint0(input);
+        }
+      }
+    }
+
+    public LineSegment getLineSegment() {
+      return new LineSegment(this.point0, this.point1);
+    }
+  }
+
   public static void main(String[] args) {
     Point[] input = { new Point(1, 1), new Point(2, 2), new Point(3, 3) };
     System.out.println(input[1].compareTo(copyWithout(input, 0)[0]) == 0);
