@@ -16,8 +16,10 @@ public class Board {
 
   private final int[][] blocks;
   private final int[][] goalBoard;
+  private final int dimension;
 
   public Board(int[][] blocks) {
+    this.dimension = blocks.length;
     int[][] localBlocks = new int[blocks.length][];
     int[][] goalBoard = new int[blocks.length][];
 
@@ -42,10 +44,34 @@ public class Board {
     return this.blocks.length;
   }
 
+  public int hamming() {
+    int distance = 0;
+
+    for (int i = 0; i < this.blocks.length; i++) {
+      for (int j = 0; j < this.blocks.length; j++) {
+        if (this.blocks[i][j] != this.goalBoard[i][j]) {
+          distance++;
+        }
+      }
+    }
+
+    return distance;
+  }
+
+  private int[] getPosition(int num) {
+    int row = num / this.dimension;
+    int index = num % this.dimension;
+
+    int[] position = { row, index };
+
+    return position;
+  }
+
   public void printGoal() {
+    StdOut.println(this.dimension());
     for (int[] row : this.goalBoard) {
       for (int num : row) {
-        StdOut.print(num + ", ");
+        StdOut.print(" " + num);
       }
       StdOut.println();
     }
@@ -59,12 +85,13 @@ public class Board {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        blocks[i][j] = 56;
+        blocks[i][j] = 1;
       }
     }
 
     Board board = new Board(blocks);
 
     board.printGoal();
+    StdOut.println(board.hamming());
   }
 }
