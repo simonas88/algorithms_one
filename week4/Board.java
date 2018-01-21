@@ -55,6 +55,49 @@ public class Board {
     return distance;
   }
 
+  private int[] getFinalPosition(int num) {
+    int[] dims = new int[2];
+
+    dims[0] = (num == 0 ? 0 : num - 1) / this.dimension;
+    dims[1] = (num == 0 ? 0 : num - 1) % this.dimension;
+
+    return dims;
+  }
+
+  private int[] getCurrentPosition(int index) {
+    int[] dims = new int[2];
+
+    dims[0] = index / this.dimension;
+    dims[1] = index % this.dimension;
+
+    return dims;
+  }
+
+  private int getPositionDiff(int num, int index) {
+    if (num == 0) {
+      return 0;
+    }
+
+    int[] finalPosition = this.getFinalPosition(num);
+    int[] currentPosition = this.getCurrentPosition(index);
+
+    int deltaRow = Math.abs(finalPosition[0] - currentPosition[0]);
+    int deltaCol = Math.abs(finalPosition[1] - currentPosition[1]);
+
+    return deltaRow + deltaCol;
+  }
+
+  public int manhattan() {
+    int distance = 0;
+
+    for (int i = 0; i < this.dimension * this.dimension; i++) {
+      int currentBlock = this.blocks[i];
+      distance += this.getPositionDiff(currentBlock, i);
+    }
+
+    return distance;
+  }
+
   public void printGoal() {
     StdOut.println(this.dimension);
 
@@ -67,21 +110,32 @@ public class Board {
     }
   }
 
-  public static void main(String[] args) {
-    int[][] blocks = new int[3][];
-    blocks[0] = new int[3];
-    blocks[1] = new int[3];
-    blocks[2] = new int[3];
+  public void printBoard() {
+    StdOut.println(this.dimension);
 
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        blocks[i][j] = 1;
+    for (int i = 0; i < this.blocks.length; i++) {
+      if ((i + 1) % this.dimension == 0) {
+        StdOut.println(" " + this.blocks[i]);
+        continue;
+      }
+      StdOut.print(" " + this.blocks[i]);
       }
     }
+
+  public static void main(String[] args) {
+    int[][] blocks = new int[3][];
+    int[] block0 = new int[]{ 8, 1, 3 };
+    int[] block1 = new int[]{ 4, 0, 2 };
+    int[] block2 = new int[]{ 7, 6, 5 };
+    blocks[0] = block0;
+    blocks[1] = block1;
+    blocks[2] = block2;
 
     Board board = new Board(blocks);
 
     board.printGoal();
+    board.printBoard();
     StdOut.println(board.hamming());
+    StdOut.println(board.manhattan());
   }
 }
