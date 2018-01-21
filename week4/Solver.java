@@ -4,14 +4,18 @@ import edu.princeton.cs.algs4.MinPQ;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.LinkedList;
+import java.util.Stack;
 
 public class Solver {
   private final int moves;
   private final boolean isSolvable;
-  private final Iterable<Board> solution;
+  private final SearchNode solution;
 
   public Solver(Board initial) {
+    if (initial == null) {
+      throw new java.lang.IllegalArgumentException();
+    }
+
     MinPQ<SearchNode> pq = new MinPQ<SearchNode>(new ManhattanComparator());
     MinPQ<SearchNode> twinPq = new MinPQ<SearchNode>(new ManhattanComparator());
     
@@ -19,65 +23,45 @@ public class Solver {
     Board initialTwin = initial.twin();
     twinPq.insert(new SearchNode(initialTwin, null, 0));
 
-    Board currentBoard = null;
-    Board twinBoard = null;
-
-    LinkedList<Board> solution = new LinkedList<Board>();
-    LinkedList<Board> twinSolution = new LinkedList<Board>();
-    int moves = -1;
+    SearchNode currentNode = null;
+    SearchNode twinNode = null;
 
     do {
-      moves++;
-      currentBoard = step(pq, solution);
-      twinBoard = step(twinPq, twinSolution);
-      if (currentBoard.isGoal()) { break; }
-      if (twinBoard.isGoal()) { break; }
+      currentNode = step(pq);
+      twinNode = step(twinPq);
+      if (currentNode.getBoard().isGoal()) { break; }
+      if (twinNode.getBoard().isGoal()) { break; }
     } while (true);
 
-    if(twinBoard.isGoal()) {
-      this.moves = 0;
+    if(twinNode.getBoard().isGoal()) {
+      this.moves = -1;
       this.solution = null;
       this.isSolvable = false;
     } else {
-      this.moves = moves;
-      this.solution = new Solution(solution);
+      this.moves = currentNode.getMoves();
+      this.solution = currentNode;
       this.isSolvable = true;
     }
   }
 
-  private Board step(MinPQ<SearchNode> pq, LinkedList<Board> solution) {
+  private SearchNode step(MinPQ<SearchNode> pq) {
     SearchNode searchNode = pq.delMin();
+    SearchNode prevNode = searchNode.getPreviousNode();
     Board currentBoard = searchNode.getBoard();
-    solution.add(currentBoard);
     if (currentBoard.isGoal()) {
-      return currentBoard;
+      return searchNode;
     }
 
     Iterable<Board> neighbors = currentBoard.neighbors();
     for (Board neighbor : neighbors) {
-      if (!existsInPath(searchNode, neighbor)) {
-        pq.insert(new SearchNode(neighbor, searchNode, searchNode.getMoves() + 1));
-      }
+      if (prevNode != null && neighbor.equals(prevNode.getBoard())) { continue; }
+      pq.insert(new SearchNode(neighbor, searchNode, searchNode.getMoves() + 1));
     }
 
-    return currentBoard;
-  }
-
-  private boolean existsInPath(SearchNode node, Board board) {
-    SearchNode lastNode = node;
-    do {
-      lastNode = lastNode.getPreviousNode();
-      if (lastNode == null) {
-        return false;
-      }
-      if (lastNode.getBoard().equals(board)) {
-        return true;
-      }
-    } while (true);
+    return searchNode;
   }
 
   public int moves() { return this.moves; }
-  public Iterable<Board> solution() { return this.solution; }
   public boolean isSolvable() { return this.isSolvable; };
 
   private class SearchNode {
@@ -85,12 +69,14 @@ public class Solver {
     private final Board currentBoard;
     private final SearchNode predecessor;
     private final int manhattan;
+    private final int hamming;
 
     public SearchNode(Board currentBoard, SearchNode predecessor, int moves) {
       this.moves = moves;
       this.currentBoard = currentBoard;
       this.predecessor = predecessor;
       this.manhattan = currentBoard.manhattan();
+      this.hamming = currentBoard.hamming();
     }
 
     public Board getBoard() {
@@ -109,23 +95,58 @@ public class Solver {
       return this.manhattan;
     }
 
+    public int hamming() {
+      return this.hamming;
+    }
+
     public int getPriority() {
       return this.moves + this.manhattan;
     }
   }
 
-  private class Solution implements Iterable<Board> {
-    private LinkedList<Board> solution;
-    public Solution(LinkedList<Board> solution) { this.solution = solution; }
-    public Iterator<Board> iterator() { return this.solution.iterator(); }
+  private class Solution implements Iterator<Board> {
+    private Stack<SearchNode> reverseNodes;
+
+    public Solution(SearchNode lastNode) {      
+      SearchNode currNode = lastNode;
+      Stack<SearchNode> reverseNodes = new Stack<SearchNode>();
+      while (currNode != null) {
+        reverseNodes.push(currNode);
+        currNode = currNode.getPreviousNode();
+      }
+
+      this.reverseNodes = reverseNodes;
+    }
+
+    public boolean hasNext() {
+      return !this.reverseNodes.empty();
+    }
+
+    public Board next() {
+      return this.reverseNodes.pop().getBoard();
+    }
+  }
+
+  public Iterable<Board> solution() {
+    SearchNode ref = this.solution;
+  
+    return ref == null ? null : new Iterable<Board>() {
+      public Iterator<Board> iterator() {
+        return new Solution(ref);
+      }
+    };
   }
 
   private class ManhattanComparator implements Comparator<SearchNode> {
     public int compare(SearchNode node0, SearchNode node1) {
-      int priority0 = node0.getPriority();
-      int priority1 = node1.getPriority();
-      if (priority0 < priority1) { return -1; }
-      if (priority0 > priority1) { return  1; }
+      int deltaPriority = node0.getPriority() - node1.getPriority();
+      int deltaManhattan = node0.manhattan() - node1.manhattan();
+      int deltaHamming = node0.hamming() - node1.hamming();
+
+      if (deltaPriority != 0) { return deltaPriority; }
+      if (deltaManhattan != 0) { return deltaManhattan; }
+      if (deltaHamming != 0) { return deltaHamming; }
+
       return 0;
     }
   }

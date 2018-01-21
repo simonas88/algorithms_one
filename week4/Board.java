@@ -266,18 +266,6 @@ public class Board {
     };
   }
 
-  private void printGoal() {
-    StdOut.println(this.dimension);
-
-    for (int i = 0; i < this.blocks.length; i++) {
-      if ((i + 1) % this.dimension == 0) {
-        StdOut.println(" " + this.goal[i]);
-        continue;
-      }
-      StdOut.print(" " + this.goal[i]);
-    }
-  }
-
   public String toString() {
     StringBuilder string = new StringBuilder();
     string.append(this.dimension);
@@ -290,9 +278,5 @@ public class Board {
       }
     }
     return string.toString();
-  }
-
-  public static void main(String[] args) {
-    
   }
 }
