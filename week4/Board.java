@@ -14,66 +14,44 @@ public class Board {
 
   // public static void main(String[] args) // unit tests (not graded)
 
-  private final int[][] blocks;
-  private final int[][] goalBoard;
+  private final int[] blocks;
+  private final int[] goal;
   private final int dimension;
 
   public Board(int[][] blocks) {
     this.dimension = blocks.length;
-    int[][] localBlocks = new int[blocks.length][];
-    int[][] goalBoard = new int[blocks.length][];
+
+    int[] localBlocks = new int[this.dimension * this.dimension];
+    int[] goal = new int[localBlocks.length];
 
     for (int i = 0; i < blocks.length; i++) {
       int[] currentBlock = blocks[i];
-      localBlocks[i] = new int[currentBlock.length];
-      goalBoard[i] = new int[currentBlock.length];
-
       for (int j = 0; j < currentBlock.length; j++) {
-        localBlocks[i][j] = currentBlock[j];
-        goalBoard[i][j] = currentBlock.length * i + 1 + j;
+        int localIndex = i * this.dimension + j;
+        localBlocks[localIndex] = blocks[i][j];
+        goal[localIndex] = localIndex + 1;
       }
     }
 
-    goalBoard[blocks.length - 1][blocks.length -1] = 0;
+    goal[goal.length - 1] = 0;
 
     this.blocks = localBlocks;
-    this.goalBoard = goalBoard;
+    this.goal = goal;
   }
 
   public int dimension() {
-    return this.blocks.length;
-  }
-
-  public int hamming() {
-    int distance = 0;
-
-    for (int i = 0; i < this.blocks.length; i++) {
-      for (int j = 0; j < this.blocks.length; j++) {
-        if (this.blocks[i][j] != this.goalBoard[i][j]) {
-          distance++;
-        }
-      }
-    }
-
-    return distance;
-  }
-
-  private int[] getPosition(int num) {
-    int row = num / this.dimension;
-    int index = num % this.dimension;
-
-    int[] position = { row, index };
-
-    return position;
+    return this.dimension;
   }
 
   public void printGoal() {
-    StdOut.println(this.dimension());
-    for (int[] row : this.goalBoard) {
-      for (int num : row) {
-        StdOut.print(" " + num);
+    StdOut.println(this.dimension);
+
+    for (int i = 0; i < this.blocks.length; i++) {
+      if ((i + 1) % this.dimension == 0) {
+        StdOut.println(" " + this.goal[i]);
+        continue;
       }
-      StdOut.println();
+      StdOut.print(" " + this.goal[i]);
     }
   }
 
@@ -92,6 +70,5 @@ public class Board {
     Board board = new Board(blocks);
 
     board.printGoal();
-    StdOut.println(board.hamming());
   }
 }
