@@ -257,8 +257,13 @@ public class Board {
     }
   }
 
-  public Iterator<Board> neighbors() {
-    return new NeighborIterator(this, this.getValidNeighborOffsets());
+  public Iterable<Board> neighbors() {
+    Board thisRef = this;
+    return new Iterable<Board>() {
+      public Iterator<Board> iterator() {
+        return new NeighborIterator(thisRef, thisRef.getValidNeighborOffsets());
+      }
+    };
   }
 
   private void printGoal() {
@@ -292,50 +297,6 @@ public class Board {
   }
 
   public static void main(String[] args) {
-    int[][] blocks = new int[3][];
-    int[] block0 = new int[]{ 8, 1, 3 };
-    int[] block1 = new int[]{ 4, 0, 2 };
-    int[] block2 = new int[]{ 7, 6, 5 };
-    blocks[0] = block0;
-    blocks[1] = block1;
-    blocks[2] = block2;
-
-    Board board = new Board(blocks);
-
-    board.printBoard();
     
-    Iterator<Board> neighbors = board.neighbors();
-    neighbors.next().printBoard();
-    neighbors.next().printBoard();
-    neighbors.next().printBoard();
-    neighbors.next().printBoard();
-
-    // board.printGoal();
-    // board.printBoard();
-    // StdOut.println(board.isGoal());
-    // StdOut.println(board.hamming());
-    // StdOut.println(board.manhattan());
-    // board.twin().printBoard();
-
-    // blocks = new int[3][];
-    // block0 = new int[]{ 1, 2, 3 };
-    // block1 = new int[]{ 4, 5, 6 };
-    // block2 = new int[]{ 7, 8, 0 };
-    // blocks[0] = block0;
-    // blocks[1] = block1;
-    // blocks[2] = block2;
-
-    // board = new Board(blocks);
-    // StdOut.println(board.isGoal());
-
-    // int[][] blocks1 = new int[3][];
-    // block0 = new int[]{ 1, 2, 7 };
-    // block1 = new int[]{ 4, 5, 6 };
-    // block2 = new int[]{ 3, 8, 0 };
-    // blocks1[0] = block0;
-    // blocks1[1] = block1;
-    // blocks1[2] = block2;
-
-    // StdOut.println(board.equals(new Board(blocks1)));
   }
 }
