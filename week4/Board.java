@@ -43,6 +43,18 @@ public class Board {
     return this.dimension;
   }
 
+  public int hamming() {
+    int distance = 0;
+
+    for (int i = 0; i < this.blocks.length; i++) {
+      if (this.blocks[i] != this.goal[i] && this.blocks[i] != 0) {
+        distance++;
+      }
+    }
+
+    return distance;
+  }
+
   public void printGoal() {
     StdOut.println(this.dimension);
 
@@ -70,5 +82,6 @@ public class Board {
     Board board = new Board(blocks);
 
     board.printGoal();
+    StdOut.println(board.hamming());
   }
 }
