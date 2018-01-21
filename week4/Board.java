@@ -255,7 +255,7 @@ public class Board {
     return new NeighborIterator(this, this.getValidNeighborOffsets());
   }
 
-  public void printGoal() {
+  private void printGoal() {
     StdOut.println(this.dimension);
 
     for (int i = 0; i < this.blocks.length; i++) {
@@ -267,16 +267,22 @@ public class Board {
     }
   }
 
-  public void printBoard() {
-    StdOut.println(this.dimension);
-
+  public String toString() {
+    StringBuilder string = new StringBuilder();
+    string.append(this.dimension);
+    string.append("\n");
     for (int i = 0; i < this.blocks.length; i++) {
+      string.append(" " + this.blocks[i]);
       if ((i + 1) % this.dimension == 0) {
-        StdOut.println(" " + this.blocks[i]);
+        string.append("\n");
         continue;
       }
-      StdOut.print(" " + this.blocks[i]);
     }
+    return string.toString();
+  }
+
+  public void printBoard() {
+    StdOut.println(this.toString());
   }
 
   public static void main(String[] args) {
