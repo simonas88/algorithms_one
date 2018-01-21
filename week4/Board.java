@@ -1,5 +1,6 @@
 import edu.princeton.cs.algs4.StdOut;
 import java.util.Objects;
+import java.util.Iterator;
 
 public class Board {
   // public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
@@ -145,6 +146,15 @@ public class Board {
     return true;
   }
 
+  private int getZeroIndex() {
+    for (int i = 0; i < this.blocks.length; i++) {
+      if (this.blocks[i] == 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   private static int[][] get2Dblocks(int[] blocks, int dimension) {
     int[][] twinBlocks = new int[dimension][];
     for (int i = 0; i < dimension; i++) {
@@ -157,6 +167,92 @@ public class Board {
     }
 
     return twinBlocks;
+  }
+
+  private int[] getNeighborBlocks(int offset) {
+    int[] copy = new int[this.blocks.length];
+    int zeroIndex = this.getZeroIndex();
+    System.arraycopy(this.blocks, 0, copy, 0, this.blocks.length);
+
+    copy[zeroIndex] = copy[zeroIndex + offset];
+    copy[zeroIndex + offset] = 0;
+
+    return copy;    
+  }
+
+  private Board getNeighborBoard(int offset) {
+    int[] neighborBlocks = this.getNeighborBlocks(offset);
+    
+    return new Board(get2Dblocks(neighborBlocks, this.dimension));
+  }
+
+  private int[] getValidNeighborOffsets() {
+    int[] validOffsets = {0,0,0,0};
+
+    int zeroIndex = this.getZeroIndex();
+
+    // isTopRow
+    if (zeroIndex / this.dimension != 0) {
+      validOffsets[0] = -1 * this.dimension;
+    }
+
+    // isLeftCol
+    if (zeroIndex % this.dimension != 0) {
+      validOffsets[1] = -1;
+    }
+    
+    // isRightCol
+    if (zeroIndex % this.dimension != (this.dimension - 1)) {
+      validOffsets[2] = 1;
+    }
+
+    // isBottomRow
+    if ((zeroIndex / this.dimension) != (this.dimension - 1)) {
+      validOffsets[3] = this.dimension;
+    }
+
+    int neighCount = 0;
+    for (int offset : validOffsets) { neighCount += offset == 0 ? 0 : 1; }
+
+    int[] finalOffsets = new int[neighCount];
+    int neighIndex = 0;
+    for (int offset : validOffsets) {
+      if (offset != 0) {
+        finalOffsets[neighIndex++] = offset;
+      }
+    }
+
+    return finalOffsets;
+   }
+
+  private class NeighborIterator implements Iterator<Board> {
+    //  1
+    // 2 3
+    //  4
+    private final Board origin;
+    private final int[] neighborOffsets;
+    private int currentNeighborOffset = 0;
+
+    public NeighborIterator(Board origin, int[] neighborOffsets) {
+      this.neighborOffsets = neighborOffsets;
+      this.origin = origin;
+    }
+
+    public boolean hasNext() {
+      return currentNeighborOffset < neighborOffsets.length;
+    }
+
+    public Board next() {
+      if (currentNeighborOffset >= neighborOffsets.length) {
+        throw new java.util.NoSuchElementException();
+      }
+
+      return this.origin.getNeighborBoard(this.neighborOffsets[this.currentNeighborOffset++]);
+    }
+  }
+
+  public Iterator<Board> neighbors() {
+    return new NeighborIterator(this, this.getValidNeighborOffsets());
   }
 
   public void printGoal() {
@@ -180,8 +276,8 @@ public class Board {
         continue;
       }
       StdOut.print(" " + this.blocks[i]);
-      }
     }
+  }
 
   public static void main(String[] args) {
     int[][] blocks = new int[3][];
@@ -194,22 +290,40 @@ public class Board {
 
     Board board = new Board(blocks);
 
-    board.printGoal();
     board.printBoard();
-    StdOut.println(board.isGoal());
-    StdOut.println(board.hamming());
-    StdOut.println(board.manhattan());
-    board.twin().printBoard();
+    
+    Iterator<Board> neighbors = board.neighbors();
+    neighbors.next().printBoard();
+    neighbors.next().printBoard();
+    neighbors.next().printBoard();
+    neighbors.next().printBoard();
 
-    blocks = new int[3][];
-    block0 = new int[]{ 1, 2, 3 };
-    block1 = new int[]{ 4, 5, 6 };
-    block2 = new int[]{ 7, 8, 0 };
-    blocks[0] = block0;
-    blocks[1] = block1;
-    blocks[2] = block2;
+    // board.printGoal();
+    // board.printBoard();
+    // StdOut.println(board.isGoal());
+    // StdOut.println(board.hamming());
+    // StdOut.println(board.manhattan());
+    // board.twin().printBoard();
 
-    board = new Board(blocks);
-    StdOut.println(board.isGoal());
+    // blocks = new int[3][];
+    // block0 = new int[]{ 1, 2, 3 };
+    // block1 = new int[]{ 4, 5, 6 };
+    // block2 = new int[]{ 7, 8, 0 };
+    // blocks[0] = block0;
+    // blocks[1] = block1;
+    // blocks[2] = block2;
+
+    // board = new Board(blocks);
+    // StdOut.println(board.isGoal());
+
+    // int[][] blocks1 = new int[3][];
+    // block0 = new int[]{ 1, 2, 7 };
+    // block1 = new int[]{ 4, 5, 6 };
+    // block2 = new int[]{ 3, 8, 0 };
+    // blocks1[0] = block0;
+    // blocks1[1] = block1;
+    // blocks1[2] = block2;
+
+    // StdOut.println(board.equals(new Board(blocks1)));
   }
 }
