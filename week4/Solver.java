@@ -53,9 +53,8 @@ public class Solver {
       return currentBoard;
     }
 
-    Iterator<Board> neighbors = currentBoard.neighbors();
-    while(neighbors.hasNext()) {
-      Board neighbor = neighbors.next();
+    Iterable<Board> neighbors = currentBoard.neighbors();
+    for (Board neighbor : neighbors) {
       if (!existsInPath(searchNode, neighbor)) {
         pq.insert(new SearchNode(neighbor, searchNode, searchNode.getMoves() + 1));
       }

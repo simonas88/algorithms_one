@@ -292,10 +292,6 @@ public class Board {
     return string.toString();
   }
 
-  public void printBoard() {
-    StdOut.println(this.toString());
-  }
-
   public static void main(String[] args) {
     
   }
