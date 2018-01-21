@@ -98,6 +98,33 @@ public class Board {
     return distance;
   }
 
+  public boolean isGoal() {
+    for (int i = 0; i < this.blocks.length; i++) {
+      if (this.blocks[i] != this.goal[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public Board twin() {
+    int[][] twinBlocks = new int[this.dimension][];
+    for (int i = 0; i < this.dimension; i++) {
+      int[] row = new int[this.dimension];
+      for (int j = 0; j < this.dimension; j++) {
+        int localIndex = i * this.dimension + j;
+        row[j] = this.blocks[localIndex];
+      }
+      twinBlocks[i] = row;
+    }
+
+    int swap = twinBlocks[0][this.dimension - 1];
+    twinBlocks[0][this.dimension - 1] = twinBlocks[this.dimension - 1][0];
+    twinBlocks[this.dimension - 1][0] = swap;
+
+    return new Board(twinBlocks);
+  }
+
   public void printGoal() {
     StdOut.println(this.dimension);
 
@@ -135,7 +162,20 @@ public class Board {
 
     board.printGoal();
     board.printBoard();
+    StdOut.println(board.isGoal());
     StdOut.println(board.hamming());
     StdOut.println(board.manhattan());
+    board.twin().printBoard();
+
+    blocks = new int[3][];
+    block0 = new int[]{ 1, 2, 3 };
+    block1 = new int[]{ 4, 5, 6 };
+    block2 = new int[]{ 7, 8, 0 };
+    blocks[0] = block0;
+    blocks[1] = block1;
+    blocks[2] = block2;
+
+    board = new Board(blocks);
+    StdOut.println(board.isGoal());
   }
 }
