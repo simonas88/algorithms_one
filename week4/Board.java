@@ -1,4 +1,5 @@
 import edu.princeton.cs.algs4.StdOut;
+import java.util.Objects;
 
 public class Board {
   // public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
@@ -123,6 +124,33 @@ public class Board {
     twinBlocks[this.dimension - 1][0] = swap;
 
     return new Board(twinBlocks);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    // self check
+    if (this == o)
+        return true;
+    // null check
+    if (o == null)
+        return false;
+    // type check and cast
+    if (this.getClass() != o.getClass())
+        return false;
+    Board board = (Board) o;
+    // field comparison
+
+    return Objects.equals(this.dimension, board.dimension)
+      && areBlocksSame(this.blocks, board.blocks);
+  }
+
+  private boolean areBlocksSame(int[] blocks0, int[] blocks1) {
+    for (int i = 0; i < blocks0.length; i++) {
+      if (blocks1[i] != blocks0[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public void printGoal() {
