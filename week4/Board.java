@@ -110,13 +110,19 @@ public class Board {
   }
 
   public Board twin() {
-    int[][] twinBlocks = get2Dblocks(this.blocks, this.dimension);
+    int[] copy = new int[this.blocks.length];
+    System.arraycopy(this.blocks, 0, copy, 0, this.blocks.length);
 
-    int swap = twinBlocks[0][this.dimension - 1];
-    twinBlocks[0][this.dimension - 1] = twinBlocks[this.dimension - 1][0];
-    twinBlocks[this.dimension - 1][0] = swap;
+    int zeroIndex = this.getZeroIndex();
 
-    return new Board(twinBlocks);
+    int first = zeroIndex == 0 ? 1 : 0;
+    int second = (first + 1) == zeroIndex ? first + 2 : first + 1; 
+
+    int swap = copy[first];
+    copy[first] = copy[second];
+    copy[second] = swap;
+
+    return new Board(get2Dblocks(copy, this.dimension));
   }
 
   @Override
