@@ -109,15 +109,7 @@ public class Board {
   }
 
   public Board twin() {
-    int[][] twinBlocks = new int[this.dimension][];
-    for (int i = 0; i < this.dimension; i++) {
-      int[] row = new int[this.dimension];
-      for (int j = 0; j < this.dimension; j++) {
-        int localIndex = i * this.dimension + j;
-        row[j] = this.blocks[localIndex];
-      }
-      twinBlocks[i] = row;
-    }
+    int[][] twinBlocks = get2Dblocks(this.blocks, this.dimension);
 
     int swap = twinBlocks[0][this.dimension - 1];
     twinBlocks[0][this.dimension - 1] = twinBlocks[this.dimension - 1][0];
@@ -151,6 +143,20 @@ public class Board {
       }
     }
     return true;
+  }
+
+  private static int[][] get2Dblocks(int[] blocks, int dimension) {
+    int[][] twinBlocks = new int[dimension][];
+    for (int i = 0; i < dimension; i++) {
+      int[] row = new int[dimension];
+      for (int j = 0; j < dimension; j++) {
+        int localIndex = i * dimension + j;
+        row[j] = blocks[localIndex];
+      }
+      twinBlocks[i] = row;
+    }
+
+    return twinBlocks;
   }
 
   public void printGoal() {
